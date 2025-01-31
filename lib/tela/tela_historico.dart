@@ -26,6 +26,15 @@ class _TelaHistoricoState extends State<TelaHistorico> {
     });
   }
 
+  Future<void> _restaurarPlaneta(Planeta planeta) async {
+    await _controlePlaneta.inserirPlaneta(planeta);
+    await _controlePlaneta.removerDoHistorico(planeta.id!);
+    _carregarHistorico();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Planeta restaurado com sucesso!')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +65,10 @@ class _TelaHistoricoState extends State<TelaHistorico> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Distância: ${planeta.distancia?.toString() ?? "N/A"} km'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.restore, color: Colors.green),
+                      onPressed: () => _restaurarPlaneta(planeta),
+                    ),
                   ),
                 );
               },

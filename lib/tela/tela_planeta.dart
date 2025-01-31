@@ -31,8 +31,8 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.planeta.nome);
-    _tamanhoController = TextEditingController(text: widget.planeta.tamanho.toString());
-    _distanciaController = TextEditingController(text: widget.planeta.distancia.toString());
+    _tamanhoController = TextEditingController(text: widget.planeta.tamanho?.toString() ?? '');
+    _distanciaController = TextEditingController(text: widget.planeta.distancia?.toString() ?? '');
     _apelidoController = TextEditingController(text: widget.planeta.apelido ?? '');
   }
 
@@ -49,8 +49,8 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
     if (_formKey.currentState!.validate()) {
       widget.planeta
         ..nome = _nomeController.text
-        ..tamanho = double.parse(_tamanhoController.text)
-        ..distancia = double.parse(_distanciaController.text)
+        ..tamanho = double.tryParse(_tamanhoController.text) ?? 0.0
+        ..distancia = double.tryParse(_distanciaController.text) ?? 0.0
         ..apelido = _apelidoController.text;
 
       if (widget.isIncluir) {
@@ -61,8 +61,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-              'Planeta ${widget.isIncluir ? 'adicionado' : 'atualizado'} com sucesso!'),
+          content: Text(widget.isIncluir ? 'Planeta adicionado com sucesso!' : 'Planeta atualizado com sucesso!'),
           backgroundColor: Colors.green,
         ),
       );
@@ -88,10 +87,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
               children: [
                 TextFormField(
                   controller: _nomeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Nome', border: OutlineInputBorder()),
                   validator: (value) {
                     if (value == null || value.isEmpty || value.length < 3) {
                       return 'Informe um nome válido (mínimo 3 caracteres)';
@@ -102,14 +98,12 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _tamanhoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tamanho (km)',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Tamanho (km)', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || double.tryParse(value) == null) {
-                      return 'Informe um tamanho válido';
+                    final numValue = double.tryParse(value ?? '');
+                    if (numValue == null || numValue < 0) {
+                      return 'Informe um tamanho válido (positivo)';
                     }
                     return null;
                   },
@@ -117,14 +111,12 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _distanciaController,
-                  decoration: const InputDecoration(
-                    labelText: 'Distância (km)',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Distância (km)', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || double.tryParse(value) == null) {
-                      return 'Informe uma distância válida';
+                    final numValue = double.tryParse(value ?? '');
+                    if (numValue == null || numValue < 0) {
+                      return 'Informe uma distância válida (positiva)';
                     }
                     return null;
                   },
@@ -132,10 +124,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _apelidoController,
-                  decoration: const InputDecoration(
-                    labelText: 'Apelido',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Apelido', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -143,9 +132,7 @@ class _TelaPlanetaState extends State<TelaPlaneta> {
                   children: [
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                       child: const Text('Cancelar'),
                     ),
                     ElevatedButton(

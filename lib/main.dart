@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'controle/controle_planeta.dart';
 import 'modelo/planeta.dart';
 import 'tela/tela_planeta.dart';
 import 'tela/tela_historico.dart';
+import 'tela/tela_detalhes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,11 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Planetas CRUD',
+      title: 'Gerenciador de Planetas',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueAccent,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.blue,
@@ -88,12 +86,40 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _excluirPlaneta(int id) async {
-    await _controlePlaneta.excluirPlaneta(id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Planeta excluído com sucesso!')),
+  void _navegarParaDetalhes(Planeta planeta) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TelaDetalhes(planeta: planeta),
+      ),
     );
-    _carregarPlanetas();
+  }
+
+  void _confirmarExclusao(int id) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirmar Exclusão"),
+        content: const Text("Tem certeza que deseja excluir este planeta?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancelar"),
+          ),
+          TextButton(
+            onPressed: () async {
+              await _controlePlaneta.excluirPlaneta(id);
+              _carregarPlanetas();
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Planeta excluído com sucesso!")),
+              );
+            },
+            child: const Text("Excluir", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -132,6 +158,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text('Apelido: ${planeta.apelido ?? "N/A"}'),
+                    onTap: () => _navegarParaDetalhes(planeta),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -141,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _excluirPlaneta(planeta.id!),
+                          onPressed: () => _confirmarExclusao(planeta.id!),
                         ),
                       ],
                     ),

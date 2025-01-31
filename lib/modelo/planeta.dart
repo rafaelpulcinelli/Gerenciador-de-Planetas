@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 
 class Planeta {
   int? id;
@@ -39,9 +40,9 @@ class Planeta {
     return {
       'id': id,
       'nome': nome,
-      'tamanho': tamanho,
-      'distancia': distancia,
-      'apelido': apelido,
+      'tamanho': tamanho ?? 0.0,
+      'distancia': distancia ?? 0.0,
+      'apelido': apelido ?? '',
     };
   }
 

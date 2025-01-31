@@ -1,8 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 import '../modelo/planeta.dart';
-
 
 class ControlePlaneta {
   static Database? _bd;
@@ -18,7 +16,7 @@ class ControlePlaneta {
     final caminho = join(caminhoBD, localArquivo);
     return await openDatabase(
       caminho,
-      version: 2, // Versão aumentada para recriação do BD
+      version: 2,
       onCreate: (db, version) async {
         await _criarBD(db);
       },
@@ -28,8 +26,8 @@ class ControlePlaneta {
             CREATE TABLE historico_planetas (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
               nome TEXT NOT NULL,
-              tamanho REAL,
-              distancia REAL,
+              tamanho REAL CHECK(tamanho >= 0),
+              distancia REAL CHECK(distancia >= 0),
               apelido TEXT
             );
           ''');
@@ -43,8 +41,8 @@ class ControlePlaneta {
       CREATE TABLE planetas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        tamanho REAL NOT NULL,
-        distancia REAL NOT NULL,
+        tamanho REAL CHECK(tamanho >= 0),
+        distancia REAL CHECK(distancia >= 0),
         apelido TEXT
       );
     ''');
@@ -53,8 +51,8 @@ class ControlePlaneta {
       CREATE TABLE historico_planetas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL,
-        tamanho REAL,
-        distancia REAL,
+        tamanho REAL CHECK(tamanho >= 0),
+        distancia REAL CHECK(distancia >= 0),
         apelido TEXT
       );
     ''');
@@ -68,18 +66,12 @@ class ControlePlaneta {
 
   Future<int> inserirPlaneta(Planeta planeta) async {
     final db = await bd;
-    return await db.insert(
-      'planetas',
-      planeta.toMap(),
-    );
+    return await db.insert('planetas', planeta.toMap());
   }
 
   Future<int> salvarNoHistorico(Planeta planeta) async {
     final db = await bd;
-    return await db.insert(
-      'historico_planetas',
-      planeta.toMap(),
-    );
+    return await db.insert('historico_planetas', planeta.toMap());
   }
   
   Future<int> alterarPlaneta(Planeta planeta) async {
@@ -100,8 +92,6 @@ class ControlePlaneta {
 
   Future<int> excluirPlaneta(int id) async {
     final db = await bd;
-    
-    // Antes de excluir, salvar no histórico
     final planeta = (await db.query('planetas', where: 'id = ?', whereArgs: [id]))
         .map((item) => Planeta.fromMap(item))
         .firstOrNull;
@@ -110,10 +100,11 @@ class ControlePlaneta {
       await salvarNoHistorico(planeta);
     }
 
-    return await db.delete(
-      'planetas',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('planetas', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> removerDoHistorico(int id) async {
+    final db = await bd;
+    return await db.delete('historico_planetas', where: 'id = ?', whereArgs: [id]);
   }
 }
