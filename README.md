@@ -8,7 +8,7 @@ Este projeto consiste em um aplicativo mobile desenvolvido em **Flutter**, permi
 ## 📖 Atividade da Disciplina de 12: Desenvolvimento de Aplicativos Móveis
 Assista também o vídeo demonstrativo do aplicativo acessando o link abaixo:
 
-🎥  
+🎥  https://youtu.be/7IjfxOc4sC4 
 
 ---
 
